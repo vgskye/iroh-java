@@ -1,0 +1,28 @@
+name: build natives
+
+on:
+  push:
+    branches: ["meower"]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-15-arm64, macos-15-intel, ubuntu-22.04, windows-2025]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.9
+      - uses: actions/checkout@v4
+      - name: Deploy Rust to CI
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --manifest-path rust/Cargo.toml --release
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: natives-${{ matrix.platform }}
+          path: rust/target/release/*iroh_java.*
