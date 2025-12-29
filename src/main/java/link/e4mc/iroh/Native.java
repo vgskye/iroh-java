@@ -18,6 +18,7 @@ public class Native {
     static native void connectEndpointBundle(Endpoint bundle, String addr, byte[] alpn, CompletableFuture<Connection> future);
     static native void closeIrohConnection(Connection connection, long code, byte[] reason);
     static native String addrIrohConnection(Connection connection);
+    static native byte[] exportKeyingMaterialIrohConnection(Connection connection, byte[] label, byte[] context, int length);
     static native void acceptBiIrohConnection(Connection connection, CompletableFuture<Stream> future);
     static native void acceptUniIrohConnection(Connection connection, CompletableFuture<Stream> future);
     static native void openBiIrohConnection(Connection connection, CompletableFuture<Stream> future);

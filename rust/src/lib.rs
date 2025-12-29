@@ -415,6 +415,27 @@ fn addr_iroh_connection<'local>(
     Ok(env.new_string(ticket.to_string())?)
 }
 
+#[export(Java_link_e4mc_iroh_Native_exportKeyingMaterialIrohConnection)]
+fn export_keying_material_iroh_connection<'local>(
+    env: &mut JNIEnv<'local>,
+    class: JClass<'local>,
+    connection: JObject<'local>,
+    label: JByteArray<'local>,
+    context: JByteArray<'local>,
+    length: jint,
+) -> anyhow::Result<JByteArray<'local>> {
+    let label = env.convert_byte_array(label)?;
+    let context = env.convert_byte_array(context)?;
+    let connection = unsafe { IrohConnection::get_from_jobject(env, &connection)? };
+    let mut km = vec![0u8; length as usize];
+    connection
+        .connection
+        .export_keying_material(&mut km, &label, &context)
+        .map_err(|_| anyhow!("requested length too long"))?;
+    drop(connection);
+    Ok(env.byte_array_from_slice(&km)?)
+}
+
 #[export(Java_link_e4mc_iroh_Native_acceptBiIrohConnection)]
 fn accept_bi_connection<'local>(
     env: &mut JNIEnv<'local>,

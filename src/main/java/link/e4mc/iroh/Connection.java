@@ -37,6 +37,10 @@ public class Connection implements AutoCloseable {
         return Native.addrIrohConnection(this);
     }
 
+    public byte[] exportKeyingMaterial(byte[] label, byte[] context, int length) {
+        return Native.exportKeyingMaterialIrohConnection(this, label, context, length);
+    }
+
     public void close(long code, byte[] reason) {
         Native.closeIrohConnection(this, code, reason);
     }
