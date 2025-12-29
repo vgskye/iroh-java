@@ -104,7 +104,7 @@ public class Native {
     }
 
     static native Object resolveDeferredInitializer(DeferredInitializer<?> deferredInitializer);
-    static native void initEndpointBundle(Endpoint bundle, byte[][] alpns);
+    static native void initEndpointBundle(Endpoint bundle, byte[][] alpns, String[] relays);
     static native void freeEndpointBundle(Endpoint bundle);
     static native Runnable pollEndpointBundle(Endpoint bundle);
     static native String addrEndpointBundle(Endpoint bundle);

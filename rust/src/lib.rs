@@ -8,6 +8,9 @@ use crossbeam_channel::Sender as MpscSender;
 use crossbeam_channel::unbounded as mpsc_channel;
 use iroh::Endpoint;
 use iroh::EndpointAddr;
+use iroh::RelayMap;
+use iroh::RelayMode;
+use iroh::RelayUrl;
 use iroh::endpoint::Connection;
 use iroh::endpoint::RecvStream;
 use iroh::endpoint::SendStream;
@@ -158,6 +161,7 @@ fn init_endpoint_bundle<'local>(
     class: JClass<'local>,
     bundle: JObject<'local>,
     alpns: JObjectArray<'local>,
+    relays: JObjectArray<'local>,
 ) -> anyhow::Result<()> {
     let alpns_len = env.get_array_length(&alpns)?;
     let mut alpns_vec = Vec::with_capacity(alpns_len as usize);
@@ -165,10 +169,23 @@ fn init_endpoint_bundle<'local>(
         let entry = env.get_object_array_element(&alpns, i)?;
         alpns_vec.push(env.convert_byte_array(JByteArray::from(entry))?);
     }
+    let relay_mode = if (relays.is_null()) {
+        RelayMode::Default
+    } else {
+        let relays_len = env.get_array_length(&relays)?;
+        let mut relays_vec = Vec::with_capacity(relays_len as usize);
+        for i in 0..alpns_len {
+            let entry = env.get_object_array_element(&relays, i)?;
+            relays_vec.push(RelayUrl::from_str(&String::from(
+                env.get_string(&JString::from(entry))?,
+            ))?);
+        }
+        RelayMode::Custom(RelayMap::from_iter(relays_vec))
+    };
     let runtime = Arc::new(tokio::runtime::Runtime::new()?);
     // TODO: more comprehensive options for Endpoint configuration
     let endpoint = runtime.block_on(
-        Endpoint::empty_builder(iroh::RelayMode::Default)
+        Endpoint::empty_builder(relay_mode)
             .alpns(alpns_vec)
             .proxy_from_env()
             .bind(),

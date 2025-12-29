@@ -9,7 +9,11 @@ public class Endpoint implements AutoCloseable {
     private long ptrCallbackReceiver = 0;
 
     public Endpoint(byte[][] alpns) {
-        Native.initEndpointBundle(this, alpns);
+        this(alpns, null);
+    }
+
+    public Endpoint(byte[][] alpns, String[] relays) {
+        Native.initEndpointBundle(this, alpns, relays);
     }
 
     public Runnable pollCallbackLoop() {
