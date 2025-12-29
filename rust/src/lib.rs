@@ -305,34 +305,49 @@ fn accept_endpoint_bundle<'local>(
     env: &mut JNIEnv<'local>,
     class: JClass<'local>,
     bundle: JObject<'local>,
+    prefuture: JObject<'local>,
     future: JObject<'local>,
 ) -> anyhow::Result<()> {
     let bundle = unsafe { EndpointBundle::get_from_jobject(env, &bundle)? }.clone();
+    let prehandle = CallbackHandle {
+        future: env.new_global_ref(prefuture)?,
+        sender: bundle.sender.clone(),
+    };
     let handle = CallbackHandle {
         future: env.new_global_ref(future)?,
         sender: bundle.sender.clone(),
     };
-    async fn inner(bundle: EndpointBundle) -> anyhow::Result<Option<IrohConnection>> {
-        match bundle.endpoint.accept().await {
-            Some(conn) => Ok(Some(IrohConnection {
-                runtime: bundle.runtime,
-                connection: conn.accept()?.await?,
-                sender: bundle.sender,
-            })),
-            None => Ok(None),
-        }
-    }
     bundle.runtime.clone().spawn(async move {
-        match inner(bundle).await {
-            Ok(None) => handle.resolve(|_| Ok(JObject::null())),
-            Ok(Some(conn)) => handle.resolve(|env| {
-                let obj = env.new_object("link/e4mc/iroh/Connection", "()V", &[])?;
-                unsafe {
-                    conn.write_to_jobject(env, &obj)?;
+        match bundle.endpoint.accept().await {
+            Some(conn) => {
+                prehandle.resolve(|_| Ok(JObject::null()));
+                match match conn.accept() {
+                    Ok(conn) => conn.await,
+                    Err(e) => Err(e.into()),
+                } {
+                    Ok(conn) => {
+                        let conn = IrohConnection {
+                            runtime: bundle.runtime,
+                            connection: conn,
+                            sender: bundle.sender,
+                        };
+                        handle.resolve(|env| {
+                            let obj = env.new_object("link/e4mc/iroh/Connection", "()V", &[])?;
+                            unsafe {
+                                conn.write_to_jobject(env, &obj)?;
+                            }
+                            Ok(obj)
+                        });
+                    }
+                    Err(e) => {
+                        handle.reject(e);
+                    }
                 }
-                Ok(obj)
-            }),
-            Err(e) => handle.reject(e),
+            }
+            None => {
+                prehandle.resolve(|_| Ok(JObject::null()));
+                handle.resolve(|_| Ok(JObject::null()));
+            }
         }
     });
     Ok(())

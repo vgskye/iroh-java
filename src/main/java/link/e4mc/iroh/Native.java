@@ -110,7 +110,7 @@ public class Native {
     static native String addrEndpointBundle(Endpoint bundle);
     static native void onlineEndpointBundle(Endpoint bundle, CompletableFuture<String> future);
     static native void closeEndpointBundle(Endpoint bundle, CompletableFuture<Void> future);
-    static native void acceptEndpointBundle(Endpoint bundle, CompletableFuture<Connection> future);
+    static native void acceptEndpointBundle(Endpoint bundle, CompletableFuture<Void> preFuture, CompletableFuture<Connection> future);
     static native void connectEndpointBundle(Endpoint bundle, String addr, byte[] alpn, CompletableFuture<Connection> future);
     static native void closeIrohConnection(Connection connection, long code, byte[] reason);
     static native String addrIrohConnection(Connection connection);

@@ -26,10 +26,11 @@ public class Endpoint implements AutoCloseable {
         return fut;
     }
 
-    public CompletableFuture<Connection> accept() {
+    public CompletableFuture<CompletableFuture<Connection>> accept() {
         CompletableFuture<Connection> fut = new CompletableFuture<>();
-        Native.acceptEndpointBundle(this, fut);
-        return fut;
+        CompletableFuture<Void> preFuture = new CompletableFuture<>();
+        Native.acceptEndpointBundle(this, preFuture, fut);
+        return preFuture.thenApply(nothing -> fut);
     }
 
     public CompletableFuture<Connection> connect(String addr, byte[] alpn) {
