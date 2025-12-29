@@ -174,7 +174,7 @@ fn init_endpoint_bundle<'local>(
     } else {
         let relays_len = env.get_array_length(&relays)?;
         let mut relays_vec = Vec::with_capacity(relays_len as usize);
-        for i in 0..alpns_len {
+        for i in 0..relays_len {
             let entry = env.get_object_array_element(&relays, i)?;
             relays_vec.push(RelayUrl::from_str(&String::from(
                 env.get_string(&JString::from(entry))?,
