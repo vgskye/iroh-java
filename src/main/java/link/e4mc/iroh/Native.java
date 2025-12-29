@@ -25,7 +25,7 @@ public class Native {
         String libName = "iroh_java";
         libName += '_' + PlatformDependent.normalizedOs()
                 + '_' + PlatformDependent.normalizedArch()
-                + "_928d48a";
+                + "_c1cd59a";
 
         String libraryPath = System.getProperty("link.e4mc.dialtone.native_path");
         boolean downloaded = false;
@@ -91,14 +91,14 @@ public class Native {
 
     private static byte[] get_native_hash(String filename) {
         switch (filename) {
-            case "iroh_java_windows_x86_64_928d48a.dll":
-                return new byte[]{-86, -20, 111, -80, 123, -107, -68, -48, -38, 110, -93, -126, 36, 21, -104, -55, -51, -45, -67, 8, -125, -10, 114, -128, -2, -24, 83, 19, 10, 58, 24, -103};
-            case "libiroh_java_linux_x86_64_928d48a.so":
-                return new byte[]{81, -36, -83, -78, 47, 44, -94, -66, -26, 7, -109, 2, 8, 122, -6, -92, -33, -86, 61, -81, 40, -54, 69, 88, 63, -96, -117, -116, 22, 112, 53, -64};
-            case "libiroh_java_osx_aarch_64_928d48a.dylib":
-                return new byte[]{-1, 88, -48, -2, -29, 50, -6, -63, -85, -79, -117, 78, 85, -86, 2, 89, 118, -35, -4, -77, -63, -45, 0, -15, 107, -12, -96, -74, 79, -22, 63, 39};
-            case "libiroh_java_osx_x86_64_928d48a.dylib":
-                return new byte[]{-10, 75, -67, 11, -110, -104, -116, 93, -50, 16, -6, -125, -39, -125, -25, -16, 96, 90, -53, -40, 89, -33, -48, 17, 77, 63, 41, -33, -114, 24, 5, -53};
+            case "iroh_java_windows_x86_64_c1cd59a.dll":
+                return new byte[]{72, 60, -37, 11, 9, 1, 12, -116, 15, 66, -90, -61, 77, 93, 106, 8, 8, -89, 15, -112, -1, 7, -46, 25, 59, 27, -13, 54, 98, 20, -70, -5};
+            case "libiroh_java_linux_x86_64_c1cd59a.so":
+                return new byte[]{-48, 39, -104, 104, 17, -91, 62, 101, -41, 63, -123, -109, -59, 44, -20, -41, 73, 109, -60, 119, -86, 69, -46, -33, -111, 83, -81, -122, -105, -68, 118, -63};
+            case "libiroh_java_osx_aarch_64_c1cd59a.dylib":
+                return new byte[]{-61, 56, -103, -10, 44, 55, 100, 120, 15, 9, 103, 93, -30, 32, -83, 54, 13, -54, 40, 50, 92, 13, -37, 8, 23, 80, -104, 90, -67, -38, -113, 0};
+            case "libiroh_java_osx_x86_64_c1cd59a.dylib":
+                return new byte[]{-68, -12, 26, -106, -85, -33, 86, -79, -94, 21, 117, 64, 84, -28, 114, -85, -29, -90, -58, 117, 77, 1, 90, 6, 48, 27, 6, 15, -70, 42, -62, -126};
         }
         return new byte[]{};
     }
