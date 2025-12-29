@@ -9,11 +9,13 @@ public class Main {
             endpoint.waitOnline().thenAccept(addr -> {
                 System.out.println(addr);
             });
-            endpoint.accept().thenAccept(conn -> {
-                System.out.println(conn.peerAddress());
-                conn.acceptBi().thenAccept(stream -> {
-                    stream.readIrohStreamByteArray(10000).thenAccept(bytes -> {
-                        System.out.println(new String(bytes, StandardCharsets.UTF_8));
+            endpoint.accept().thenAccept(preconn -> {
+                preconn.thenAccept(conn -> {
+                    System.out.println(conn.peerAddress());
+                    conn.acceptBi().thenAccept(stream -> {
+                        stream.readIrohStreamByteArray(10000).thenAccept(bytes -> {
+                            System.out.println(new String(bytes, StandardCharsets.UTF_8));
+                        });
                     });
                 });
             });
