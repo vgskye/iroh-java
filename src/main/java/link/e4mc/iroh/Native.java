@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 
 public class Native {
     static {
@@ -25,7 +24,7 @@ public class Native {
         String libName = "iroh_java";
         libName += '_' + PlatformDependent.normalizedOs()
                 + '_' + PlatformDependent.normalizedArch()
-                + "_c1cd59a";
+                + "_810c6e9";
 
         String libraryPath = System.getProperty("link.e4mc.dialtone.native_path");
         boolean downloaded = false;
@@ -91,14 +90,14 @@ public class Native {
 
     private static byte[] get_native_hash(String filename) {
         switch (filename) {
-            case "iroh_java_windows_x86_64_c1cd59a.dll":
-                return new byte[]{72, 60, -37, 11, 9, 1, 12, -116, 15, 66, -90, -61, 77, 93, 106, 8, 8, -89, 15, -112, -1, 7, -46, 25, 59, 27, -13, 54, 98, 20, -70, -5};
-            case "libiroh_java_linux_x86_64_c1cd59a.so":
-                return new byte[]{-48, 39, -104, 104, 17, -91, 62, 101, -41, 63, -123, -109, -59, 44, -20, -41, 73, 109, -60, 119, -86, 69, -46, -33, -111, 83, -81, -122, -105, -68, 118, -63};
-            case "libiroh_java_osx_aarch_64_c1cd59a.dylib":
-                return new byte[]{-61, 56, -103, -10, 44, 55, 100, 120, 15, 9, 103, 93, -30, 32, -83, 54, 13, -54, 40, 50, 92, 13, -37, 8, 23, 80, -104, 90, -67, -38, -113, 0};
-            case "libiroh_java_osx_x86_64_c1cd59a.dylib":
-                return new byte[]{-68, -12, 26, -106, -85, -33, 86, -79, -94, 21, 117, 64, 84, -28, 114, -85, -29, -90, -58, 117, 77, 1, 90, 6, 48, 27, 6, 15, -70, 42, -62, -126};
+            case "iroh_java_windows_x86_64_810c6e9.dll":
+                return new byte[]{-71, -108, -101, -69, 26, 50, -50, 21, 2, -6, 87, 38, -58, -97, 54, -27, 78, -106, 54, 37, 26, 65, -34, 24, -113, -56, 78, -53, 49, 43, 67, 8};
+            case "libiroh_java_linux_x86_64_810c6e9.so":
+                return new byte[]{98, -78, -112, 74, 70, -37, 83, -18, 87, 81, -10, -27, 47, -86, -79, -95, -75, 63, -52, 30, -17, -110, -79, -100, 84, 9, 69, -28, 92, -56, 50, 12};
+            case "libiroh_java_osx_aarch_64_810c6e9.dylib":
+                return new byte[]{114, -84, 104, 98, -108, 26, 98, 30, 38, 47, -77, 87, 107, 126, -20, 101, 106, 88, -119, -65, 126, -51, -17, 68, 122, 116, -76, -18, -83, -2, -18, -85};
+            case "libiroh_java_osx_x86_64_810c6e9.dylib":
+                return new byte[]{-90, -122, -20, -24, -5, 13, 91, -66, -121, -15, 105, 99, 102, -57, 117, 62, 78, 106, -95, 16, -19, 67, -103, -20, 3, -119, -113, -28, 11, -115, -15, 4};
         }
         return new byte[]{};
     }
