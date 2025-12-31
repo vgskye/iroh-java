@@ -11,6 +11,7 @@ use iroh::EndpointAddr;
 use iroh::RelayMap;
 use iroh::RelayMode;
 use iroh::RelayUrl;
+use iroh::Watcher;
 use iroh::endpoint::Connection;
 use iroh::endpoint::RecvStream;
 use iroh::endpoint::SendStream;
@@ -123,6 +124,19 @@ impl CallbackHandle {
     ) {
         _ = self.sender.send(Some(CallbackResult {
             handle: self.future,
+            object: Ok(Box::new(object)),
+            cleanup: None,
+        }));
+    }
+
+    fn resolve_multi(
+        &mut self,
+        object: impl for<'local> FnOnce(&mut JNIEnv<'local>) -> anyhow::Result<JObject<'local>>
+        + Send
+        + 'static,
+    ) {
+        _ = self.sender.send(Some(CallbackResult {
+            handle: self.future.clone(),
             object: Ok(Box::new(object)),
             cleanup: None,
         }));
@@ -242,7 +256,7 @@ fn poll_endpoint_bundle<'local>(
             }
             env.new_object(
                 "link/e4mc/iroh/CallbackResolve",
-                "(Ljava/util/concurrent/CompletableFuture;Llink/e4mc/iroh/DeferredInitializer;)V",
+                "(Llink/e4mc/iroh/Resolvable;Llink/e4mc/iroh/DeferredInitializer;)V",
                 &[JValue::Object(&handle), JValue::Object(&deferred)],
             )?
         }
@@ -255,7 +269,7 @@ fn poll_endpoint_bundle<'local>(
             )?;
             env.new_object(
                 "link/e4mc/iroh/CallbackReject",
-                "(Ljava/util/concurrent/CompletableFuture;Ljava/lang/Throwable;)V",
+                "(Llink/e4mc/iroh/Resolvable;Ljava/lang/Throwable;)V",
                 &[JValue::Object(&handle), JValue::Object(&exc)],
             )?
         }
@@ -273,6 +287,29 @@ fn addr_endpoint_bundle<'local>(
     drop(bundle);
     let ticket = EndpointTicket::new(addr);
     Ok(env.new_string(ticket.to_string())?)
+}
+
+#[export(Java_link_e4mc_iroh_Native_watchAddrEndpointBundle)]
+fn watch_addr_endpoint_bundle<'local>(
+    env: &mut JNIEnv<'local>,
+    class: JClass<'local>,
+    bundle: JObject<'local>,
+    future: JObject<'local>,
+) -> anyhow::Result<()> {
+    let bundle = unsafe { EndpointBundle::get_from_jobject(env, &bundle)? }.clone();
+    let mut handle = CallbackHandle {
+        future: env.new_global_ref(future)?,
+        sender: bundle.sender,
+    };
+    bundle.runtime.spawn(async move {
+        let mut watch = bundle.endpoint.watch_addr();
+        while let Ok(addr) = watch.updated().await {
+            let ticket = EndpointTicket::new(addr).to_string();
+            handle.resolve_multi(move |env| Ok(env.new_string(ticket.to_string())?.into()));
+        }
+        handle.resolve(|_| Ok(JObject::null()));
+    });
+    Ok(())
 }
 
 #[export(Java_link_e4mc_iroh_Native_onlineEndpointBundle)]

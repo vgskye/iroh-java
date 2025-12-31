@@ -24,28 +24,32 @@ public class Endpoint implements AutoCloseable {
         return Native.addrEndpointBundle(this);
     }
 
+    public void watchAddress(Resolvable<String> resolvable) {
+        Native.watchAddrEndpointBundle(this, resolvable);
+    }
+
     public CompletableFuture<String> waitOnline() {
         CompletableFuture<String> fut = new CompletableFuture<>();
-        Native.onlineEndpointBundle(this, fut);
+        Native.onlineEndpointBundle(this, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 
     public CompletableFuture<CompletableFuture<Connection>> accept() {
         CompletableFuture<Connection> fut = new CompletableFuture<>();
         CompletableFuture<Void> preFuture = new CompletableFuture<>();
-        Native.acceptEndpointBundle(this, preFuture, fut);
+        Native.acceptEndpointBundle(this, new CompletableFutureResolvable<>(preFuture), new CompletableFutureResolvable<>(fut));
         return preFuture.thenApply(nothing -> fut);
     }
 
     public CompletableFuture<Connection> connect(String addr, byte[] alpn) {
         CompletableFuture<Connection> fut = new CompletableFuture<>();
-        Native.connectEndpointBundle(this, addr, alpn, fut);
+        Native.connectEndpointBundle(this, addr, alpn, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 
     public CompletableFuture<Void> closeAsync() {
         CompletableFuture<Void> fut = new CompletableFuture<>();
-        Native.closeEndpointBundle(this, fut);
+        Native.closeEndpointBundle(this, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 

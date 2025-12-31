@@ -11,25 +11,25 @@ public class Connection implements AutoCloseable {
 
     public CompletableFuture<Stream> acceptBi() {
         CompletableFuture<Stream> fut = new CompletableFuture<>();
-        Native.acceptBiIrohConnection(this, fut);
+        Native.acceptBiIrohConnection(this, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 
     public CompletableFuture<Stream> acceptUni() {
         CompletableFuture<Stream> fut = new CompletableFuture<>();
-        Native.acceptUniIrohConnection(this, fut);
+        Native.acceptUniIrohConnection(this, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 
     public CompletableFuture<Stream> openBi() {
         CompletableFuture<Stream> fut = new CompletableFuture<>();
-        Native.openBiIrohConnection(this, fut);
+        Native.openBiIrohConnection(this, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 
     public CompletableFuture<Stream> openUni() {
         CompletableFuture<Stream> fut = new CompletableFuture<>();
-        Native.openUniIrohConnection(this, fut);
+        Native.openUniIrohConnection(this, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 

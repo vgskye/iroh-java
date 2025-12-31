@@ -12,25 +12,25 @@ public class Stream implements AutoCloseable {
 
     public CompletableFuture<Long> readIrohStreamByteBuffer(ByteBuffer buffer, long offset, long maxlen) {
         CompletableFuture<Long> fut = new CompletableFuture<>();
-        Native.readIrohStreamByteBuffer(this, buffer, offset, maxlen, fut);
+        Native.readIrohStreamByteBuffer(this, buffer, offset, maxlen, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 
     public CompletableFuture<byte[]> readIrohStreamByteArray(long maxlen) {
         CompletableFuture<byte[]> fut = new CompletableFuture<>();
-        Native.readIrohStreamByteArray(this, maxlen, fut);
+        Native.readIrohStreamByteArray(this, maxlen, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 
     public CompletableFuture<Void> writeIrohStreamByteBuffer(ByteBuffer buffer, long offset, long len) {
         CompletableFuture<Void> fut = new CompletableFuture<>();
-        Native.writeIrohStreamByteBuffer(this, buffer, offset, len, fut);
+        Native.writeIrohStreamByteBuffer(this, buffer, offset, len, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 
     public CompletableFuture<Void> writeIrohStreamByteArray(byte[] array, long offset, long len) {
         CompletableFuture<Void> fut = new CompletableFuture<>();
-        Native.writeIrohStreamByteArray(this, array, offset, len, fut);
+        Native.writeIrohStreamByteArray(this, array, offset, len, new CompletableFutureResolvable<>(fut));
         return fut;
     }
 
