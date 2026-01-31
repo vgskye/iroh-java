@@ -57,4 +57,8 @@ public class Endpoint implements AutoCloseable {
     public void close() {
         Native.freeEndpointBundle(this);
     }
+
+    public static String sanitizeTicket(String ticket) {
+        return Native.sanitizeTicket(ticket);
+    }
 }

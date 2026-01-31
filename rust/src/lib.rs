@@ -694,7 +694,7 @@ fn read_iroh_stream_bytebuffer<'local>(
     if let Some(recv) = stream.recv.clone() {
         stream.runtime.spawn(async move {
             let mut recv = recv.lock().await;
-            match recv.read_chunk(maxlen, true).await {
+            match recv.read_chunk(maxlen).await {
                 Ok(None) => handle.resolve(move |_| {
                     drop(persist);
                     Ok(JObject::null())
@@ -745,7 +745,7 @@ fn read_iroh_stream_bytearray<'local>(
     if let Some(recv) = stream.recv.clone() {
         stream.runtime.spawn(async move {
             let mut recv = recv.lock().await;
-            match recv.read_chunk(maxlen as usize, true).await {
+            match recv.read_chunk(maxlen as usize).await {
                 Ok(None) => handle.resolve(|_| Ok(JObject::null())),
                 Ok(Some(chunk)) => {
                     handle.resolve(move |env| Ok(env.byte_array_from_slice(&chunk.bytes)?.into()))
@@ -825,4 +825,17 @@ fn write_iroh_stream_bytearray<'local>(
         });
     }
     Ok(())
+}
+
+#[export(Java_link_e4mc_iroh_Native_sanitizeTicket)]
+fn sanitize_ticket<'local>(
+    env: &mut JNIEnv<'local>,
+    class: JClass<'local>,
+    ticket: JString<'local>,
+) -> anyhow::Result<JString<'local>> {
+    let ticket: String = env.get_string(&ticket)?.into();
+    let mut ticket: EndpointAddr = EndpointTicket::from_str(&ticket)?.into();
+    ticket.addrs.retain(|e| e.is_relay());
+    let ticket = EndpointTicket::new(ticket);
+    Ok(env.new_string(ticket.to_string())?)
 }
