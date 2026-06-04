@@ -1,4 +1,3 @@
-use std::ptr::null_mut;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -16,6 +15,7 @@ use iroh::endpoint::Connection;
 use iroh::endpoint::RecvStream;
 use iroh::endpoint::SendStream;
 use iroh::endpoint::VarInt;
+use iroh::endpoint::presets;
 use iroh_tickets::endpoint::EndpointTicket;
 use jni::objects::JByteBuffer;
 use jni::objects::JString;
@@ -183,7 +183,7 @@ fn init_endpoint_bundle<'local>(
         let entry = env.get_object_array_element(&alpns, i)?;
         alpns_vec.push(env.convert_byte_array(JByteArray::from(entry))?);
     }
-    let relay_mode = if (relays.is_null()) {
+    let relay_mode = if relays.is_null() {
         RelayMode::Default
     } else {
         let relays_len = env.get_array_length(&relays)?;
@@ -199,7 +199,8 @@ fn init_endpoint_bundle<'local>(
     let runtime = Arc::new(tokio::runtime::Runtime::new()?);
     // TODO: more comprehensive options for Endpoint configuration
     let endpoint = runtime.block_on(
-        Endpoint::empty_builder(relay_mode)
+        Endpoint::builder(presets::Minimal)
+            .relay_mode(relay_mode)
             .alpns(alpns_vec)
             .proxy_from_env()
             .bind(),
@@ -247,6 +248,9 @@ fn poll_endpoint_bundle<'local>(
     let Some(polled) = polled else {
         return Err(anyhow!("shutting down"));
     };
+    if let Some(cleanup) = polled.cleanup {
+        cleanup();
+    }
     let handle = env.new_local_ref(polled.handle)?;
     Ok(match polled.object {
         Ok(maker) => {
@@ -703,12 +707,12 @@ fn read_iroh_stream_bytebuffer<'local>(
                     let addr = addr;
                     unsafe {
                         std::ptr::copy_nonoverlapping(
-                            chunk.bytes.as_ptr(),
+                            chunk.as_ptr(),
                             addr.0.byte_add(offset as usize),
-                            chunk.bytes.len(),
+                            chunk.len(),
                         );
                     }
-                    let read = chunk.bytes.len();
+                    let read = chunk.len();
                     handle.resolve(move |env| {
                         drop(persist);
                         Ok(env
@@ -748,7 +752,7 @@ fn read_iroh_stream_bytearray<'local>(
             match recv.read_chunk(maxlen as usize).await {
                 Ok(None) => handle.resolve(|_| Ok(JObject::null())),
                 Ok(Some(chunk)) => {
-                    handle.resolve(move |env| Ok(env.byte_array_from_slice(&chunk.bytes)?.into()))
+                    handle.resolve(move |env| Ok(env.byte_array_from_slice(&chunk)?.into()))
                 }
                 Err(e) => handle.reject(e),
             }
