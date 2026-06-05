@@ -13,9 +13,9 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
-          version: "v0.12.0"
+          version: "v0.15.0"
       - uses: actions/checkout@v4
       - name: Deploy Rust to CI
         uses: dtolnay/rust-toolchain@stable
