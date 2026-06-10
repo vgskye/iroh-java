@@ -1,10 +1,12 @@
 package link.e4mc.iroh;
 
+import dev.dirs.ProjectDirectories;
 import io.netty.util.internal.PlatformDependent;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -30,11 +32,32 @@ public class Native {
         boolean downloaded = false;
 
         while (libraryPath == null) {
-            String home = System.getProperty("user.home");
             String fileName = System.mapLibraryName(libName);
-            String folderPath = home + File.separatorChar + ".e4mc_cache";
+            String legacyFolderPath = System.getProperty("user.home") + File.separatorChar + ".e4mc_cache";
+            String legacyLibraryPath = legacyFolderPath + File.separatorChar + fileName;
+            String folderPath;
+            try {
+                folderPath = ProjectDirectories.from("link", "e4mc", "e4mc").cacheDir;
+            } catch (Throwable e) {
+                folderPath = legacyFolderPath;
+            }
             libraryPath = folderPath + File.separatorChar + fileName;
             new File(folderPath).mkdirs();
+            if (new File(legacyLibraryPath).isFile()) {
+                try {
+                    FileInputStream fis = new FileInputStream(legacyLibraryPath);
+                    byte[] buf = new byte[fis.available()];
+                    fis.read(buf);
+                    fis.close();
+
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    byte[] hashed = digest.digest(buf);
+                    byte[] expected = get_native_hash(fileName);
+                    if (Arrays.equals(hashed, expected)) {
+                        libraryPath = legacyLibraryPath;
+                    }
+                } catch (Exception ignored) {}
+            }
             if (!new File(libraryPath).isFile()) {
                 try {
                     URL url = new URL(System.getProperty("link.e4mc.dialtone.native_url", "https://natives.e4mc.link/" + fileName));

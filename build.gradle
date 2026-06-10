@@ -1,9 +1,10 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
 group = 'link.e4mc'
-version = '1.0-SNAPSHOT'
+version = '0.1.0'
 
 repositories {
     mavenCentral()
@@ -16,6 +17,7 @@ compileJava {
 
 dependencies {
     implementation("io.netty:netty-all:4.1.130.Final")
+    implementation("dev.dirs:directories:26")
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -23,4 +25,26 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+if (hasProperty("skyevenToken")) {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from components.java
+            }
+        }
+        repositories {
+            maven {
+                url "https://sg.storage.bunnycdn.com/skyeven"
+                credentials(HttpHeaderCredentials) {
+                    name = "AccessKey"
+                    value = property("skyevenToken")
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+            }
+        }
+    }
 }
