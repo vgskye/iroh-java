@@ -13,9 +13,9 @@ name = "iroh_java"
 [dependencies]
 anyhow = "1.0.100"
 crossbeam-channel = "0.5.15"
-iroh = "1.0.0-rc.1"
+iroh = "1.0.0"
 iroh-java-proc-macros = { path = "macros" }
-iroh-tickets = "1.0.0-rc.1"
+iroh-tickets = "1.0.0"
 jni = "0.21.1"
 log = "0.4.29"
 tokio = { version = "1.48.0", features = ["rt-multi-thread"] }
