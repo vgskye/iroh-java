@@ -26,7 +26,7 @@ public class Native {
         String libName = "iroh_java";
         libName += '_' + PlatformDependent.normalizedOs()
                 + '_' + PlatformDependent.normalizedArch()
-                + "_0691f89";
+                + "_57caf9a";
 
         String libraryPath = System.getProperty("link.e4mc.dialtone.native_path");
         boolean downloaded = false;
@@ -34,7 +34,6 @@ public class Native {
         while (libraryPath == null) {
             String fileName = System.mapLibraryName(libName);
             String legacyFolderPath = System.getProperty("user.home") + File.separatorChar + ".e4mc_cache";
-            String legacyLibraryPath = legacyFolderPath + File.separatorChar + fileName;
             String folderPath;
             try {
                 folderPath = ProjectDirectories.from("link", "e4mc", "e4mc").cacheDir;
@@ -43,21 +42,6 @@ public class Native {
             }
             libraryPath = folderPath + File.separatorChar + fileName;
             new File(folderPath).mkdirs();
-            if (new File(legacyLibraryPath).isFile()) {
-                try {
-                    FileInputStream fis = new FileInputStream(legacyLibraryPath);
-                    byte[] buf = new byte[fis.available()];
-                    fis.read(buf);
-                    fis.close();
-
-                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                    byte[] hashed = digest.digest(buf);
-                    byte[] expected = get_native_hash(fileName);
-                    if (Arrays.equals(hashed, expected)) {
-                        libraryPath = legacyLibraryPath;
-                    }
-                } catch (Exception ignored) {}
-            }
             if (!new File(libraryPath).isFile()) {
                 try {
                     URL url = new URL(System.getProperty("link.e4mc.dialtone.native_url", "https://natives.e4mc.link/" + fileName));
@@ -113,19 +97,18 @@ public class Native {
 
     private static byte[] get_native_hash(String filename) {
         switch (filename) {
-            case "iroh_java_windows_aarch_64_0691f89.dll":
-                return new byte[]{-105, 2, 1, 1, 26, 49, 28, 15, -112, 123, -31, -38, 49, 81, 56, -128, -71, -18, 69, 27, 117, 29, -107, 40, 115, 91, 79, -92, -44, -21, 50, 108};
-            case "iroh_java_windows_x86_64_0691f89.dll":
-                return new byte[]{-97, -102, 6, 105, -124, -10, -40, -46, -84, -50, 95, 65, 92, -96, 42, -45, 36, 115, 102, -96, -96, 39, -40, 17, -101, 88, -119, 38, 64, -111, -34, -100};
-            case "libiroh_java_linux_aarch_64_0691f89.so":
-                return new byte[]{-100, 100, 5, -72, 80, 37, 50, 41, -118, -78, -5, 28, 7, -3, -28, -83, -87, -22, 55, 35, 92, 55, 98, -56, 54, -1, 110, 9, -25, 16, -78, -78};
-            case "libiroh_java_linux_x86_64_0691f89.so":
-                return new byte[]{-108, -16, 27, 65, 64, 12, 54, 117, 20, 48, 82, -108, -42, 17, 31, 51, 70, -76, 126, 77, 92, 85, 42, -31, -110, -15, -54, -32, 69, -112, -11, 103};
-            case "libiroh_java_osx_aarch_64_0691f89.dylib":
-                return new byte[]{54, 17, -79, -101, 39, -86, -65, -78, -1, -80, 40, 60, 27, 124, 0, -56, -115, 62, 106, 40, -49, 76, 97, 115, -57, -31, -20, -92, -16, -46, -105, 83};
-            case "libiroh_java_osx_x86_64_0691f89.dylib":
-                return new byte[]{34, 6, -6, -90, 124, 93, 57, 17, -90, -104, -122, -33, 3, 82, 67, -77, -65, 16, 100, -121, 65, -94, -36, -14, -35, -89, -33, 89, -64, -33, -84, 22};
-        }
+            case "iroh_java_windows_aarch_64_57caf9a.dll":
+                return new byte[]{-128, 86, 116, 30, -49, -24, 98, -4, -61, 57, -106, -75, -9, -123, 73, 2, -121, 123, 19, -88, -22, -34, 29, -115, -119, -45, 33, -53, -94, 100, 45, -53};
+            case "iroh_java_windows_x86_64_57caf9a.dll":
+                return new byte[]{83, 66, -122, -48, 44, -36, 21, -106, -22, 96, 100, -44, 25, 50, -109, 34, -117, -82, -10, -108, -48, -120, -36, 125, -33, -109, 26, 59, -35, -111, 6, -21};
+            case "libiroh_java_linux_aarch_64_57caf9a.so":
+                return new byte[]{-116, 69, -87, -25, 76, -88, 63, -35, -46, -23, 55, 1, -127, -118, 80, 67, -87, 15, 94, 10, -51, -45, 108, -43, -40, -85, -21, 80, -120, -107, -17, 32};
+            case "libiroh_java_linux_x86_64_57caf9a.so":
+                return new byte[]{90, -87, -19, 3, 116, 42, -10, -45, 122, 7, -105, -60, 78, -5, 25, -54, 124, 72, 127, -61, -26, -52, -41, 105, 86, -77, -91, -114, -19, -97, 98, 70};
+            case "libiroh_java_osx_aarch_64_57caf9a.dylib":
+                return new byte[]{83, 56, -97, -126, 30, -49, 87, -89, -110, 77, -62, 61, -12, -51, -72, -91, 107, -88, -69, 10, -115, -44, 102, -42, -115, 27, -100, 114, -3, 94, 76, -128};
+            case "libiroh_java_osx_x86_64_57caf9a.dylib":
+                return new byte[]{101, 35, 49, -83, -32, 90, -65, 127, -115, 113, 104, -104, 23, -11, 58, 6, -127, 109, -113, 118, 66, 66, -12, 86, 127, -33, -128, 36, -98, 110, 50, -11};        }
         return new byte[]{};
     }
 
