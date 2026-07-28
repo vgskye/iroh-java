@@ -13,7 +13,7 @@ name = "iroh_java"
 [dependencies]
 anyhow = "1.0.100"
 crossbeam-channel = "0.5.15"
-iroh = "1.0.0"
+iroh = "1.0.3"
 iroh-java-proc-macros = { path = "macros" }
 iroh-tickets = "1.0.0"
 jni = "0.21.1"
