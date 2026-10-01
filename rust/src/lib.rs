@@ -1,3 +1,4 @@
+use std::net::SocketAddr;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -842,4 +843,74 @@ fn sanitize_ticket<'local>(
     ticket.addrs.retain(|e| e.is_relay());
     let ticket = EndpointTicket::new(ticket);
     Ok(env.new_string(ticket.to_string())?)
+}
+
+#[export(Java_link_e4mc_iroh_Native_debugInfo)]
+fn debug_info<'local>(
+    env: &mut JNIEnv<'local>,
+    class: JClass<'local>,
+    connection: JObject<'local>,
+) -> anyhow::Result<JString<'local>> {
+    let connection = unsafe { IrohConnection::get_from_jobject(env, &connection)? }.clone();
+    let mut result = String::new();
+    for path in connection.connection.paths().into_iter() {
+        let local_addr = match path.local_addr() {
+            iroh::endpoint::LocalTransportAddr::Ip(Some(std::net::IpAddr::V4(v4))) => {
+                if v4.is_private() {
+                    "ip v4 priv"
+                } else if v4.is_link_local() {
+                    "ip v4 lloc"
+                } else if v4.is_loopback() {
+                    "ip v4 loop"
+                } else {
+                   "ip v4 glob"
+                }
+            }
+            iroh::endpoint::LocalTransportAddr::Ip(Some(std::net::IpAddr::V6(v6))) => {
+                if v6.is_unique_local() {
+                    "ip v6 priv"
+                } else if v6.is_unicast_link_local() {
+                    "ip v6 lloc"
+                } else {
+                    "ip v6 glob"
+                }
+            }
+            iroh::endpoint::LocalTransportAddr::Ip(None) => "ip unk unk",
+            iroh::endpoint::LocalTransportAddr::Relay(relay) => &format!("relay {relay}"),
+            iroh::endpoint::LocalTransportAddr::Custom(_) => "custom",
+            _ => "unk",
+        };
+        let remote_addr = match path.remote_addr() {
+            iroh::TransportAddr::Ip(SocketAddr::V4(v4)) => {
+                if v4.ip().is_private() {
+                    "ip v4 priv"
+                } else if v4.ip().is_link_local() {
+                    "ip v4 lloc"
+                } else if v4.ip().is_loopback() {
+                    "ip v4 loop"
+                } else {
+                   "ip v4 glob"
+                }
+            }
+            iroh::TransportAddr::Ip(SocketAddr::V6(v6)) => {
+                if v6.ip().is_unique_local() {
+                    "ip v6 priv"
+                } else if v6.ip().is_unicast_link_local() {
+                    "ip v6 lloc"
+                } else {
+                    "ip v6 glob"
+                }
+            }
+            iroh::TransportAddr::Relay(relay) => &format!("relay {relay}"),
+            iroh::TransportAddr::Custom(_) => "custom",
+            _ => "unk",
+        };
+        result += &format!(
+            "path {} active {} rtt {} local {local_addr} remote {remote_addr}\n",
+            path.id(),
+            path.is_selected(),
+            path.rtt().as_secs_f64() * 1000.
+        );
+    }
+    Ok(env.new_string(result)?)
 }

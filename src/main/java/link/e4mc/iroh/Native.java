@@ -135,4 +135,5 @@ public class Native {
     static native void writeIrohStreamByteArray(Stream stream, byte[] array, long offset, long len, Resolvable<Void> future);
     static native void freeIrohStream(Stream stream);
     static native String sanitizeTicket(String ticket);
+    static native String debugInfo(Connection connection);
 }
